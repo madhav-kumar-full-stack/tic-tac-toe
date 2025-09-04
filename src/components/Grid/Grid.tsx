@@ -26,31 +26,39 @@ const Grid = () => {
 
     const winningCombinations = [
         // Rows
-        [[0, 0], [0, 1], [0, 2]], [[1, 0], [1, 1], [1, 2]], [[2, 0], [2, 1], [2, 2]],
+        [[0, 0], [0, 1], [0, 2]],
+        [[1, 0], [1, 1], [1, 2]],
+        [[2, 0], [2, 1], [2, 2]],
 
         // Columns
-        [[0, 0], [1, 0], [2, 0]], [[0, 1], [1, 1], [2, 1]], [[0, 2], [1, 2], [2, 2]],
+        [[0, 0], [1, 0], [2, 0]],
+        [[0, 1], [1, 1], [2, 1]],
+        [[0, 2], [1, 2], [2, 2]],
 
         // Diagonals
-        [[0, 0], [1, 1], [2, 2],], [[0, 2], [1, 1], [2, 0]]
+        [[0, 0], [1, 1], [2, 2]],
+        [[0, 2], [1, 1], [2, 0]]
     ];
 
     const users = ["X", "O"];
     let currentUserIdxRef = useRef(0);
 
     const checkForWinner = (grid: typeof gridValues) => {
+        let emptyGridCount = 0;
+
         for (const combination of winningCombinations) {
+            const firstCombination = combination[0];
+            const secondCombination = combination[1];
+            const thirdCombination = combination[2];
 
-            const firstComination = combination[0];
-            const secondComination = combination[1];
-            const thirdComination = combination[2];
+            const gridFirstValue = grid[firstCombination[0]][firstCombination[1]].value;
+            const gridSecondValue = grid[secondCombination[0]][secondCombination[1]].value;
+            const gridThirdValue = grid[thirdCombination[0]][thirdCombination[1]].value;
 
-
-            const gridFirstValue = grid[firstComination[0]][firstComination[1]].value;
-            const gridSecondValue = grid[secondComination[0]][secondComination[1]].value;
-            const gridThirdValue = grid[thirdComination[0]][thirdComination[1]].value;
-
-            if (!gridFirstValue || !gridSecondValue || !gridThirdValue) continue;
+            if (!gridFirstValue || !gridSecondValue || !gridThirdValue) {
+                emptyGridCount++;
+                continue;
+            }
 
             if (
                 gridFirstValue === gridSecondValue &&
@@ -59,14 +67,21 @@ const Grid = () => {
                 return gridFirstValue;
             }
         }
-        return null;
+
+        if (emptyGridCount === 9) {
+            return null;
+        } else if (emptyGridCount === 0) {
+            alert("It's a draw!");
+            resetGame();
+            return null;
+        }
     };
 
     useEffect(() => {
         const winner = checkForWinner(gridValues);
         if (winner) {
             alert(`Player ${winner} wins!`);
-            setGridValues(gridValuesInitialState);
+            resetGame();
         }
     }, [gridValues]);
 
@@ -85,6 +100,11 @@ const Grid = () => {
             return newGrid;
         });
     };
+
+    const resetGame = () => {
+        setGridValues(gridValuesInitialState);
+        currentUserIdxRef.current = 0;
+    }
 
     return (
         <div className="flex flex-col gap-1">
