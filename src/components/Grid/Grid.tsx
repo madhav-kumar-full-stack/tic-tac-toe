@@ -1,125 +1,84 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
+
 import Cell from "./Cell/Cell";
 
-const gridValuesInitialState = [
-    [
-        { isChecked: false, value: "" },
-        { isChecked: false, value: "" },
-        { isChecked: false, value: "" },
-    ],
-    [
-        { isChecked: false, value: "" },
-        { isChecked: false, value: "" },
-        { isChecked: false, value: "" },
-    ],
-    [
-        { isChecked: false, value: "" },
-        { isChecked: false, value: "" },
-        { isChecked: false, value: "" },
-    ],
-]
+import { getGridValues, resetGame, setGridValues } from "../../store/gridValuesSlice";
+import { checkForWinner, getGameStatus, oPoints, xPoints } from "../../store/gameStatusSlice";
+import { DRAW_MESSAGE, GAME_IN_PROGRESS } from "../../constants";
+import { getWinningPatterns } from "../../store/winningPatternsSlice";
+import { useDispatch, useSelector } from "react-redux";
+
+import styles from "./Grid.module.css";
+import { getCurrentPlayer, switchCurrentPlayer } from "../../store/playersSlice";
 
 const Grid = () => {
-    const [gridValues, setGridValues] = useState<
-        Array<Array<{ isChecked: boolean; value: string }>>
-    >(gridValuesInitialState);
-
-    const winningCombinations = [
-        // Rows
-        [[0, 0], [0, 1], [0, 2]],
-        [[1, 0], [1, 1], [1, 2]],
-        [[2, 0], [2, 1], [2, 2]],
-
-        // Columns
-        [[0, 0], [1, 0], [2, 0]],
-        [[0, 1], [1, 1], [2, 1]],
-        [[0, 2], [1, 2], [2, 2]],
-
-        // Diagonals
-        [[0, 0], [1, 1], [2, 2]],
-        [[0, 2], [1, 1], [2, 0]]
-    ];
-
-    const users = ["X", "O"];
-    let currentUserIdxRef = useRef(0);
-
-    const checkForWinner = (grid: typeof gridValues) => {
-        let emptyGridCount = 0;
-
-        for (const combination of winningCombinations) {
-            const firstCombination = combination[0];
-            const secondCombination = combination[1];
-            const thirdCombination = combination[2];
-
-            const gridFirstValue = grid[firstCombination[0]][firstCombination[1]].value;
-            const gridSecondValue = grid[secondCombination[0]][secondCombination[1]].value;
-            const gridThirdValue = grid[thirdCombination[0]][thirdCombination[1]].value;
-
-            if (!gridFirstValue || !gridSecondValue || !gridThirdValue) {
-                emptyGridCount++;
-                continue;
-            }
-
-            if (
-                gridFirstValue === gridSecondValue &&
-                gridSecondValue === gridThirdValue
-            ) {
-                return gridFirstValue;
-            }
-        }
-
-        if (emptyGridCount === 9) {
-            return null;
-        } else if (emptyGridCount === 0) {
-            alert("It's a draw!");
-            resetGame();
-            return null;
-        }
-    };
+    const grid = useSelector(getGridValues);
+    const gameStatusMsg = useSelector(getGameStatus);
+    const winningCombinations = useSelector(getWinningPatterns);
+    const currentPlayer = useSelector(getCurrentPlayer);
+    const xPlayerPoints = useSelector(xPoints);
+    const oPlayerPoints = useSelector(oPoints);
+    const dispatch = useDispatch();
 
     useEffect(() => {
-        const winner = checkForWinner(gridValues);
-        if (winner) {
-            alert(`Player ${winner} wins!`);
-            resetGame();
+        dispatch(checkForWinner({ grid, winningCombinations }));
+    }, [grid, winningCombinations]);
+
+    useEffect(() => {
+        if (gameStatusMsg && gameStatusMsg !== GAME_IN_PROGRESS) {
+            if (gameStatusMsg === DRAW_MESSAGE) {
+                alert(DRAW_MESSAGE);
+            } else {
+                alert(gameStatusMsg);
+            }
+            reset();
         }
-    }, [gridValues]);
+    }, [gameStatusMsg]);
 
 
     const handleCellClick = (rowIndex: number, cellIndex: number) => {
-        setGridValues((prev) => {
-            const newGrid = JSON.parse(JSON.stringify(prev));
-            const oldValue = newGrid[rowIndex][cellIndex].isChecked;
+        const newGrid = JSON.parse(JSON.stringify(grid));
+        const oldValue = newGrid[rowIndex][cellIndex].isChecked;
 
-            if (!oldValue) {
-                newGrid[rowIndex][cellIndex].isChecked = true;
-                newGrid[rowIndex][cellIndex].value = users[currentUserIdxRef.current];
-                currentUserIdxRef.current = (currentUserIdxRef.current + 1) % 2;
-            }
+        if (!oldValue) {
+            newGrid[rowIndex][cellIndex].isChecked = true;
+            newGrid[rowIndex][cellIndex].value = currentPlayer;
 
-            return newGrid;
-        });
+            dispatch(switchCurrentPlayer());
+        }
+
+        dispatch(setGridValues(newGrid));
     };
 
-    const resetGame = () => {
-        setGridValues(gridValuesInitialState);
-        currentUserIdxRef.current = 0;
+    const reset = () => {
+        dispatch(resetGame());
     }
 
     return (
-        <div className="flex flex-col gap-1">
-            {gridValues.map((rows, rowIndex) => (
-                <div key={rowIndex} className="flex gap-1">
-                    {rows.map((row, cellIndex) => (
-                        <div key={rowIndex + cellIndex} className="">
-                            <Cell
-                                row={row}
-                                handleClick={() => handleCellClick(rowIndex, cellIndex)}
-                            />
+        <div className="flex flex-column justify-content-center align-items-center h-screen p-5">
+            <div className="flex flex-column align-items-center w-full gap-3">
+                <h1 className="m-0 text-2xl font-bold">Tic-Tac-Toe</h1>
+                <p className="m-0">Current Player: {currentPlayer}</p>
+                <div className="flex gap-8 white-space-nowrap">
+                    <span className="flex align-items-center">Player X points: {xPlayerPoints}</span>
+                    <span className="flex align-items-center">Player O points: {oPlayerPoints}</span>
+                </div>
+            </div>
+            <div className="flex flex-1 align-items-center mt-5">
+                <div className={`flex flex-column gap-1 ${styles.gridContainer}`}>
+                    {grid.map((rows, rowIndex) => (
+                        <div key={rowIndex} className="flex flex-1 gap-1">
+                            {rows.map((row, cellIndex) => (
+                                <Cell
+                                    key={rowIndex + cellIndex}
+                                    row={row}
+                                    handleClick={() => handleCellClick(rowIndex, cellIndex)}
+                                />
+                            ))}
                         </div>
                     ))}
                 </div>
-            ))}
+            </div>
         </div>
     );
 };

@@ -1,3 +1,5 @@
+import { Card } from 'primereact/card';
+
 type Props = {
     row: { isChecked: boolean; value: string };
     handleClick: () => void;
@@ -5,9 +7,9 @@ type Props = {
 
 const Cell: React.FC<Props> = ({ row, handleClick }) => {
     return (
-        <button className="min-w-80 min-h-40" onClick={handleClick}>
+        <Card className="flex justify-content-center align-items-center text-6xl w-4" onClick={handleClick}>
             {row.value}
-        </button>
+        </Card>
     );
 };
 
