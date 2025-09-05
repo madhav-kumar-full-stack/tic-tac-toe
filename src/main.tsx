@@ -5,8 +5,7 @@ import App from "./App.tsx";
 import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
-  <HashRouter basename="/tic-tac-toe">
+  <HashRouter>
     <App />
   </HashRouter>
-
 );
