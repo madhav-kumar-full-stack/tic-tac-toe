@@ -1,10 +1,12 @@
 import { createRoot } from "react-dom/client";
-import "./index.css";
+import { HashRouter } from "react-router-dom";
+
 import App from "./App.tsx";
-import { BrowserRouter } from "react-router";
+import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
-  <BrowserRouter>
+  <HashRouter basename="/tic-tac-toe">
     <App />
-  </BrowserRouter>
+  </HashRouter>
+
 );

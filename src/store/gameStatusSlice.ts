@@ -1,7 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { DRAW_MESSAGE, GAME_IN_PROGRESS } from "../constants";
 import type { GridValuesType } from "./gridValuesSlice";
 import type { WinningPatternsType } from "./winningPatternsSlice";
+
+import { DRAW_MESSAGE, GAME_IN_PROGRESS } from "../constants";
 
 const initialState = {
     value: "",

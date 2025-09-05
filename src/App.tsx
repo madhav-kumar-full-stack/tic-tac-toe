@@ -1,24 +1,28 @@
-import { Route, Routes } from "react-router";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { Provider } from "react-redux";
+
+import { PrimeReactProvider } from "primereact/api";
+
+import store from "./store/store";
+
 import Layout from "./pages/Layout/Layout";
 import Dashboard from "./pages/Dashboard/Dashboard";
-import { Provider } from "react-redux";
-import store from "./store/store";
-import { PrimeReactProvider } from 'primereact/api';
 
-import 'primereact/resources/themes/lara-light-indigo/theme.css'; //theme
-import 'primereact/resources/primereact.min.css'; //core css
-import 'primeflex/primeflex.css'; // flex
-import './App.css';
+import "primereact/resources/themes/lara-light-indigo/theme.css";
+import "primereact/resources/primereact.min.css";
+import "primeflex/primeflex.css";
+import "./App.css";
 
 function App() {
   return (
     <Provider store={store}>
       <PrimeReactProvider>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-          </Route>
-        </Routes>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<Dashboard />} />
+            </Route>
+          </Routes>
       </PrimeReactProvider>
     </Provider>
   );

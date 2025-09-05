@@ -1,15 +1,15 @@
 import { useEffect } from "react";
-
-import Cell from "./Cell/Cell";
+import { useDispatch, useSelector } from "react-redux";
 
 import { getGridValues, resetGame, setGridValues } from "../../store/gridValuesSlice";
 import { checkForWinner, getGameStatus, oPoints, xPoints } from "../../store/gameStatusSlice";
-import { DRAW_MESSAGE, GAME_IN_PROGRESS } from "../../constants";
-import { getWinningPatterns } from "../../store/winningPatternsSlice";
-import { useDispatch, useSelector } from "react-redux";
-
-import styles from "./Grid.module.css";
 import { getCurrentPlayer, switchCurrentPlayer } from "../../store/playersSlice";
+import { getWinningPatterns } from "../../store/winningPatternsSlice";
+
+import Cell from "./Cell/Cell";
+import styles from "./Grid.module.css";
+
+import { DRAW_MESSAGE, GAME_IN_PROGRESS } from "../../constants";
 
 const Grid = () => {
     const grid = useSelector(getGridValues);
