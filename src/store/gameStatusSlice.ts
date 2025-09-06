@@ -2,10 +2,16 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { GridValuesType } from "./gridValuesSlice";
 import type { WinningPatternsType } from "./winningPatternsSlice";
 
-import { DRAW_MESSAGE, GAME_IN_PROGRESS } from "../constants";
+import {
+    DRAW_MESSAGE,
+    GAME_IN_PROGRESS,
+    PLAYER_O_WINS,
+    PLAYER_X_WINS,
+    PLAYERS,
+} from "../constants";
 
 const initialState = {
-    value: "",
+    message: GAME_IN_PROGRESS,
     xPoints: 0,
     oPoints: 0,
 };
@@ -38,39 +44,58 @@ const gameStatusSlice = createSlice({
                 const gridThirdValue =
                     grid[thirdCombination[0]][thirdCombination[1]].value;
 
-                if (!gridFirstValue || !gridSecondValue || !gridThirdValue) {
+                if (!gridFirstValue) {
                     emptyGridCount++;
-                    continue;
+                } else if (!gridSecondValue) {
+                    emptyGridCount++;
+                } else if (!gridThirdValue) {
+                    emptyGridCount++;
                 }
 
-                if (
+                if (gridFirstValue &&
                     gridFirstValue === gridSecondValue &&
                     gridSecondValue === gridThirdValue
                 ) {
-                    if (gridFirstValue === "X") {
+                    if (gridFirstValue === PLAYERS.X) {
                         state.xPoints = state.xPoints + 1;
+                        state.message = PLAYER_X_WINS;
+                        return;
                     } else {
                         state.oPoints = state.oPoints + 1;
+                        state.message = PLAYER_O_WINS;
+                        return;
                     }
-                    state.value = `Player ${gridFirstValue} wins!`;
                 }
             }
 
-            if (emptyGridCount === 9) {
-                state.value = GAME_IN_PROGRESS;
+            if (emptyGridCount > 0 && emptyGridCount <= 9) {
+                if (state.message !== GAME_IN_PROGRESS) {
+                    state.message = GAME_IN_PROGRESS;
+                }
             } else if (emptyGridCount === 0) {
-                state.value = DRAW_MESSAGE;
+                state.message = DRAW_MESSAGE;
             }
+        },
+        resetMessage: (state) => {
+            state.message = GAME_IN_PROGRESS;
+        },
+        resetUserData: (state) => {
+            state.message = GAME_IN_PROGRESS;
+            state.xPoints = 0;
+            state.oPoints = 0;
         },
     },
 });
 
-export const getGameStatus = (state: { gameStatus: typeof initialState }) =>
-    state.gameStatus.value;
+export const getStatusMessage = (state: { gameStatus: typeof initialState }) =>
+    state.gameStatus.message;
 
-export const xPoints = (state: {gameStatus: typeof initialState}) => state.gameStatus.xPoints;
-export const oPoints = (state: {gameStatus: typeof initialState}) => state.gameStatus.oPoints;
+export const xPoints = (state: { gameStatus: typeof initialState }) =>
+    state.gameStatus.xPoints;
+export const oPoints = (state: { gameStatus: typeof initialState }) =>
+    state.gameStatus.oPoints;
 
-export const { checkForWinner } = gameStatusSlice.actions;
+export const { checkForWinner, resetMessage, resetUserData } =
+    gameStatusSlice.actions;
 
 export default gameStatusSlice.reducer;

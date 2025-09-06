@@ -1,19 +1,34 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { getGridValues, resetGame, setGridValues } from "../../store/gridValuesSlice";
-import { checkForWinner, getGameStatus, oPoints, xPoints } from "../../store/gameStatusSlice";
-import { getCurrentPlayer, switchCurrentPlayer } from "../../store/playersSlice";
+import {
+    getGridValues,
+    resetGame,
+    setGridValues,
+} from "../../store/gridValuesSlice";
+import {
+    checkForWinner,
+    oPoints,
+    resetMessage,
+    resetUserData,
+    xPoints,
+} from "../../store/gameStatusSlice";
+import {
+    getCurrentPlayer,
+    switchCurrentPlayer,
+    makeOcurrentPlayer,
+    makeXcurrentPlayer,
+} from "../../store/playersSlice";
 import { getWinningPatterns } from "../../store/winningPatternsSlice";
 
+import Dialog from "../CommonDialog/CommonDialog";
 import Cell from "./Cell/Cell";
 import styles from "./Grid.module.css";
 
-import { DRAW_MESSAGE, GAME_IN_PROGRESS } from "../../constants";
+import { PLAYERS } from "../../constants";
 
 const Grid = () => {
     const grid = useSelector(getGridValues);
-    const gameStatusMsg = useSelector(getGameStatus);
     const winningCombinations = useSelector(getWinningPatterns);
     const currentPlayer = useSelector(getCurrentPlayer);
     const xPlayerPoints = useSelector(xPoints);
@@ -23,18 +38,6 @@ const Grid = () => {
     useEffect(() => {
         dispatch(checkForWinner({ grid, winningCombinations }));
     }, [grid, winningCombinations]);
-
-    useEffect(() => {
-        if (gameStatusMsg && gameStatusMsg !== GAME_IN_PROGRESS) {
-            if (gameStatusMsg === DRAW_MESSAGE) {
-                alert(DRAW_MESSAGE);
-            } else {
-                alert(gameStatusMsg);
-            }
-            reset();
-        }
-    }, [gameStatusMsg]);
-
 
     const handleCellClick = (rowIndex: number, cellIndex: number) => {
         const newGrid = JSON.parse(JSON.stringify(grid));
@@ -50,18 +53,41 @@ const Grid = () => {
         dispatch(setGridValues(newGrid));
     };
 
-    const reset = () => {
+    const onResetMessage = () => {
+        dispatch(resetMessage());
         dispatch(resetGame());
-    }
+    };
+
+    const onResetGame = () => {
+        onResetMessage();
+        dispatch(resetUserData());
+    };
+
+    const makeCurrentPlayer = (player: string) => {
+        if (PLAYERS.O === player) {
+            dispatch(makeOcurrentPlayer());
+        } else if (PLAYERS.X === player) {
+            dispatch(makeXcurrentPlayer());
+        }
+    };
 
     return (
         <div className="flex flex-column justify-content-center align-items-center h-screen p-5">
+            <Dialog
+                onResetMessage={onResetMessage}
+                onResetGame={onResetGame}
+                makeCurrentPlayer={makeCurrentPlayer}
+            />
             <div className="flex flex-column align-items-center w-full gap-3">
                 <h1 className="m-0 text-2xl font-bold">Tic-Tac-Toe</h1>
                 <p className="m-0">Current Player: {currentPlayer}</p>
                 <div className="flex gap-8 white-space-nowrap">
-                    <span className="flex align-items-center">Player X points: {xPlayerPoints}</span>
-                    <span className="flex align-items-center">Player O points: {oPlayerPoints}</span>
+                    <span className="flex align-items-center">
+                        Player X points: {xPlayerPoints}
+                    </span>
+                    <span className="flex align-items-center">
+                        Player O points: {oPlayerPoints}
+                    </span>
                 </div>
             </div>
             <div className="flex flex-1 align-items-center mt-5">

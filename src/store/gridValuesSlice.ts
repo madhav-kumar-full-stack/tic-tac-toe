@@ -33,14 +33,15 @@ const gridValuesSlice = createSlice({
             state.value = action.payload;
         },
         resetGame: (state) => {
-            state.value = gridValuesInitialState;
+            state.value = JSON.parse(JSON.stringify(gridValuesInitialState));
         },
     },
 });
 
 export const { setGridValues, resetGame } = gridValuesSlice.actions;
 
-export const getGridValues = (state: { gridValues: typeof initialState }) => state.gridValues.value;
+export const getGridValues = (state: { gridValues: typeof initialState }) =>
+    state.gridValues.value;
 
 export type GridValuesType = typeof gridValuesInitialState;
 
