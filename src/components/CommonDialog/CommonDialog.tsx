@@ -52,7 +52,7 @@ const CommonDialog: React.FC<Props> = ({
         });
         onResetGame();
     };
-    console.log(message);
+
     useEffect(() => {
         if (message && message !== GAME_IN_PROGRESS) {
             if (message === DRAW_MESSAGE) {
@@ -93,7 +93,6 @@ const CommonDialog: React.FC<Props> = ({
                     footerRef,
                     hide,
                     message,
-                    ...rest
                 }) => (
                     <div className="flex flex-column align-items-center p-5 surface-overlay border-round">
                         <div className="border-circle bg-primary inline-flex justify-content-center align-items-center h-6rem w-6rem -mt-8">
